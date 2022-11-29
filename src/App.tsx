@@ -7,7 +7,14 @@ import {
   List,
   ULWrapper,
 } from './components';
-import { useNumber, useTodos } from './hooks';
+import TodoList from './components/TodoList';
+import { useNumber } from './hooks';
+import {
+  TodosProvider,
+  useAddTodo,
+  useRemoveTodo,
+  useTodos,
+} from './hooks/useTodos';
 
 export interface Payload {
   text: string;
@@ -16,6 +23,10 @@ export interface Payload {
 const App = () => {
   const [payload, setPayload] = useState<Payload | null>(null);
   const [value, setValue] = useNumber(0);
+
+  const todos = useTodos();
+  const addTodo = useAddTodo();
+  const removeTodo = useRemoveTodo();
 
   useEffect(() => {
     fetch('/data.json')
@@ -28,10 +39,6 @@ const App = () => {
   const onListClick = useCallback((item: string) => {
     alert(item);
   }, []);
-
-  const { todos, addTodo, removeTodo } = useTodos([
-    { id: 0, text: 'Bruno', done: false },
-  ]);
 
   const newTodoRef = useRef<HTMLInputElement>(null);
 
@@ -75,4 +82,13 @@ const App = () => {
   );
 };
 
-export default App;
+const AppWrapper = () => (
+  <TodosProvider initialTodos={[{ id: 0, text: 'Bruno', done: false }]}>
+    <div style={{ display: 'grid', gridTemplateColumns: '50% 50%' }}>
+      <App />
+      <TodoList />
+    </div>
+  </TodosProvider>
+);
+
+export default AppWrapper;
